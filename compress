@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+/usr/bin/time -f "Telemetry: fpack_time: %e" fpack-in-place ${FITSFILE}
+

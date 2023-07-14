@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+fhe ${FITSFILE}
+export JSONFILE="${FITSFILE%.*}.json"
+
+/usr/bin/time -f "Telemetry: sdf_json_copy_time: %e" mc cp -q ${JSONFILE} ${MC_HOST}/${BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
+/usr/bin/time -f "Telemetry: sdf_fits_copy_time: %e" mc cp -q ${FITSFILE} ${MC_HOST}/${BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}

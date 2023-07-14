@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+fpack ${FPACK_OPTIONS} $1
+touch -c -r $1 $1.fz 
+mv $1.fz $1
