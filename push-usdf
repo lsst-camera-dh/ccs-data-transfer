@@ -1,8 +1,18 @@
 #!/bin/bash
 set -e
 
-fhe ${FITSFILE}
 export JSONFILE="${FITSFILE%.*}.json"
 
-/usr/bin/time -f "Telemetry: sdf_json_copy_time: %e" mc cp -q ${JSONFILE} ${MC_HOST}/${BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
-/usr/bin/time -f "Telemetry: sdf_fits_copy_time: %e" mc cp -q ${FITSFILE} ${MC_HOST}/${BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}
+# Backwards compatibility
+
+if [ -z "${USDF_USE_S3DAEMON}" ]; then
+    SENDFILE="mc cp -q"
+else
+    SENDFILE="/usr/bin/python3 /home/ccs-ipa/s3daemon/git/python/s3daemon/send.py"
+fi
+
+
+/usr/bin/time -f "Telemetry: sdf_json_copy_time: %e" ${SENDFILE} ${JSONFILE} ${USDF_MC_HOST}/${USDF_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
+echo "Track: sdf_json_copy_rc: $?"
+/usr/bin/time -f "Telemetry: sdf_fits_copy_time: %e" ${SENDFILE} ${FITSFILE} ${USDF_MC_HOST}/${USDF_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}
+echo "Track: sdf_fits_copy_rc: $?"

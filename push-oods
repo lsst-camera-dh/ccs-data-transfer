@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+export JSONFILE="${FITSFILE%.*}.json"
+
+/usr/bin/time -f "Telemetry: oods_json_copy_time: %e" mc cp -q ${JSONFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
+echo "Track: oods_json_copy_rc: $?"
+/usr/bin/time -f "Telemetry: oods_fits_copy_time: %e" mc cp -q ${FITSFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}
+echo "Track: oods_fits_copy_rc: $?"
