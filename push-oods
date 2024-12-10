@@ -1,9 +1,21 @@
 #!/bin/bash
-set -e
-
-export JSONFILE="${FITSFILE%.*}.json"
-
-/usr/bin/time -f "Telemetry: oods_json_copy_time: %e" mc cp -q ${JSONFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
-echo "Track: oods_json_copy_rc: $?"
-/usr/bin/time -f "Telemetry: oods_fits_copy_time: %e" mc cp -q ${FITSFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}
-echo "Track: oods_fits_copy_rc: $?"
+set +e
+echo "Start: oods_fits_copy $(($(date +%s%N)/1000000))"
+dest="${OODS_DESTINATION:-lsstcam-archiver}"
+camera="${OODS_CAMERA:-maintel}"
+echo ccs-push -h $dest -c $camera -s ${DATE}/${SEQNO} -f ${FITSFILE}  
+retry=0
+rc=1
+until [ $retry -gt 10 ] 
+do
+  /usr/bin/time -f "Telemetry: oods_fits_copy_time: %e"  ccs-push -h $dest -c $camera -s ${DATE}/${SEQNO} -f ${FITSFILE}  
+  rc=$?
+  if [ $rc -eq 0 ]
+  then 
+     break
+  fi 
+  ((retry++))
+  sleep $[($RANDOM%10)+1]s
+done
+echo "Retries $retry"
+echo "End: oods_fits_copy $rc $(($(date +%s%N)/1000000))"
