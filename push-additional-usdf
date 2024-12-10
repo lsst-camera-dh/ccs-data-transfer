@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+# Backwards compatibility
+
+if [ -z "${USDF_USE_S3DAEMON}" ]; then
+    SENDFILE="mc cp -q"
+else
+    SENDFILE="/usr/bin/python3 /home/ccs-ipa/s3daemon/git/python/s3daemon/send.py"
+fi
+
+set +e
+
+echo "Start: usdf_additional_copy $(($(date +%s%N)/1000000))"
+/usr/bin/time -f "Telemetry: sdf_additional_copy_time: %e" ${SENDFILE} ${FILE} ${USDF_MC_HOST}/${USDF_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FILE##*/}
+rc=$?
+echo "End: usdf_additional_copy $rc $(($(date +%s%N)/1000000))"
