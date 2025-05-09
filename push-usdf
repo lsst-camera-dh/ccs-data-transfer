@@ -11,8 +11,12 @@ else
     SENDFILE="/usr/bin/python3 /home/ccs-ipa/s3daemon/git/python/s3daemon/send.py"
 fi
 
-
+set +e
+echo "Start: usdf_json_copy $(($(date +%s%N)/1000000))"
 /usr/bin/time -f "Telemetry: sdf_json_copy_time: %e" ${SENDFILE} ${JSONFILE} ${USDF_MC_HOST}/${USDF_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
-echo "Track: sdf_json_copy_rc: $?"
+rc=$?
+echo "End: usdf_json_copy $rc $(($(date +%s%N)/1000000))"
+echo "Start: usdf_fits_copy $(($(date +%s%N)/1000000))"
 /usr/bin/time -f "Telemetry: sdf_fits_copy_time: %e" ${SENDFILE} ${FITSFILE} ${USDF_MC_HOST}/${USDF_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}
-echo "Track: sdf_fits_copy_rc: $?"
+rc=$?
+echo "End: usdf_fits_copy $rc $(($(date +%s%N)/1000000))"
