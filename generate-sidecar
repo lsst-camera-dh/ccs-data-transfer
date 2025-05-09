@@ -1,4 +1,8 @@
 #!/bin/bash
-set -e
+set +e
 
+echo "Start: generate-sidecar $(($(date +%s%N)/1000000))"
 fhe ${FITSFILE}
+rc=$?
+echo "End: generate-sidecar $rc $(($(date +%s%N)/1000000))"
+exit $rc
