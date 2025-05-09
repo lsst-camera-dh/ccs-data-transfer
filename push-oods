@@ -3,7 +3,19 @@ set -e
 
 export JSONFILE="${FITSFILE%.*}.json"
 
-/usr/bin/time -f "Telemetry: oods_json_copy_time: %e" mc cp -q ${JSONFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
-echo "Track: oods_json_copy_rc: $?"
-/usr/bin/time -f "Telemetry: oods_fits_copy_time: %e" mc cp -q ${FITSFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}
-echo "Track: oods_fits_copy_rc: $?"
+# Backwards compatibility
+
+if [ -z "${OODS_USE_S3DAEMON}" ]; then
+    SENDFILE="mc cp -q"
+else
+    SENDFILE="/usr/bin/python3 /home/ccs-ipa/s3daemon/git/python/s3daemon/send.py"
+fi
+
+echo "Start: oods_json_copy $(($(date +%s%N)/1000000))"
+/usr/bin/time -f "Telemetry: oods_json_copy_time: %e" ${SENDFILE} ${JSONFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${JSONFILE##*/}
+rc=$?
+echo "End: oods_json_copy $rc $(($(date +%s%N)/1000000))"
+echo "Start: oods_fits_copy $(($(date +%s%N)/1000000))"
+/usr/bin/time -f "Telemetry: oods_fits_copy_time: %e" ${SENDFILE} ${FITSFILE} ${OODS_MC_HOST}/${OODS_BUCKET}/${INSTRUMENT}/${DATE}/${IMAGENAME}/${FITSFILE##*/}
+rc=$?
+echo "End: oods_fits_copy $rc $(($(date +%s%N)/1000000))"

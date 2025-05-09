@@ -1,5 +1,9 @@
 #!/bin/bash
-set -e
+set +e
 
+echo "Start: compress $(($(date +%s%N)/1000000))"
 /usr/bin/time -f "Telemetry: fpack_time: %e" fpack-in-place ${FITSFILE}
+rc=$?
+echo "End: compress $rc $(($(date +%s%N)/1000000))"
+exit $rc
 
