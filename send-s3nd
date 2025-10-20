@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+# Simple script to make s3nd look like other commands for sending files.
+# We can include this in send-usdf once we only support s3nd
+
+if [ "$#" -ne 3 ]; then
+    echo "send-s3nd: Illegal number of parameters"
+fi
+
+url=$1
+file=$2
+# Remove the historic mc folder sent as the first item in the file path, and substitute s3://
+uri=$(echo $3 | sed 's|[^/]\+/|s3://|')
+# This is a bit ugly, since it relies on an env var set externally. Maybe it would be better to
+# pass it as the 4th argument?
+slug=$IMAGENAME
+
+exec 3>&1
+HTTP_STATUS=$(curl -s -w "%{http_code}" -o >(cat >&3) -d file=$file -d uri=$uri -d slug=$slug $url)
+
+[ "$HTTP_STATUS" -eq "200" ] && exit 0 || exit $HTTP_STATUS
