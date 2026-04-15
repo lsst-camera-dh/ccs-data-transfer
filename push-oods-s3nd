@@ -13,7 +13,9 @@ else
     SENDFILE="mc cp -q"
 fi
 
-
+if [[ "$FITSFILE" == *SW* && -n "$OODS_SW_BUCKET" ]]; then
+   export OODS_BUCKET=$OODS_SW_BUCKET
+fi
 
 set +e
 echo "Start: oods_json_copy $(($(date +%s%N)/1000000))"
