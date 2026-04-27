@@ -5,10 +5,16 @@ export JSONFILE="${FITSFILE%.*}.json"
 
 # Backwards compatibility
 
-if [ -z "${OODS_USE_S3DAEMON}" ]; then
-    SENDFILE="mc cp -q"
-else
+if [ -n "${OODS_USE_S3DAEMON}" ]; then
     SENDFILE="/usr/bin/python3 /home/ccs-ipa/s3daemon/git/python/s3daemon/send.py"
+elif [ -n "${OODS_USE_S3ND}" ]; then
+    SENDFILE="send-s3nd http://localhost:15571/upload"
+else
+    SENDFILE="mc cp -q"
+fi
+
+if [[ "$FITSFILE" == *SW* && -n "$OODS_SW_BUCKET" ]]; then
+   export OODS_BUCKET=$OODS_SW_BUCKET
 fi
 
 set +e
